@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - main
-  pull_request:
-    branches:
-      - main
 
 jobs:
   deploy:
@@ -16,27 +13,11 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.12'
-
-    - name: Install dependencies
-      run: |
-        python -m venv venv
-        source venv/bin/activate
-        pip install -r requirements.txt
-
     - name: Install zip tool
-      run: sudo apt-get install -y zip
+      run: montudor/action-zip@1
 
     - name: Create Zip file for Lambda function
-      run: |
-        mkdir -p package
-        cp -r lambda_function.py templates/ requirements.txt package/
-        cd package
-        pip install -r requirements.txt -t .
-        zip -r ../code.zip .
+      run: zip -r code.zip .
 
     - name: AWS CLI v2
       uses: imehedi/actions-awscli-v2@latest
