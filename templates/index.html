@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top Tracks</title>
+    <link href="data:image/x-icon;base64,AAABAAEAEBAQAAEABAAoAQAAFgAAACgAAAAQAAAAIAAAAAEABAAAAAAAgAAAAAAAAAAAAAAAEAAAAAAAAAAAAAAA0MP3AP///wAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAIiIiAAAAACIiIiIiAAACIiIiIiIgACIRESIRESAAIhESIiIRIgAiIgIiICIiACIiAiIgIiIAAiIiIiIiIgAAIiIiIiIiAAACIiAiIiIAAAIiICIiIAAAACIgIiIgAAAAIiICIgAAAAACIgAAAAAAAAAAAAAADwDwAAwAMAAIABAAAAAQAAAAAAAAAAAAAAAAAAAAAAAAAAAACAAAAAwAAAAOAAAADwAQAA8AEAAPADAAD4fwAA" rel="icon" type="image/x-icon">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 20px;
+        }
+
+        h1, h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .song-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+        }
+
+        .song-card {
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            width: calc(25% - 10px);
+            margin-bottom: 20px;
+        }
+
+        .song-card img {
+            width: 100%;
+            height: auto;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .song-info {
+            padding: 10px;
+        }
+
+        .song-info p {
+            margin: 5px 0;
+        }
+
+        @media screen and (max-width: 768px) {
+            .song-card {
+                width: calc(50% - 10px);
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .song-card {
+                width: calc(100% - 10px);
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>Today's Top 50 Tracks</h1>
+    <div style="text-align: center; margin-bottom: 20px;">
+        <label for="datePicker">Select Date: </label>
+        <input type="date" id="datePicker" onchange="updateTopTracks()">
+    </div>
+    <div id="songContainer" class="song-container">
+        {% for track in today_top_tracks %}
+            <div class="song-card">
+                <img src="{{ track['image'] }}" alt="{{ track['name'] }}">
+                <div class="song-info">
+                    <p>{{ track['name'] }}</p>
+                    <p>{{ track['artists'] }}</p>
+                </div>
+            </div>
+        {% endfor %}
+    </div>
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        var availableDates = {{ available_dates | tojson }};
+
+        function updateTopTracks() {
+            var selectedDate = document.getElementById('datePicker').value;
+            $.get('/top-tracks', { date: selectedDate }, function(data) {
+                var songContainer = document.getElementById('songContainer');
+                songContainer.innerHTML = '';
+                data.forEach(function(track) {
+                    var songCard = document.createElement('div');
+                    songCard.className = 'song-card';
+                    var img = document.createElement('img');
+                    img.src = track['image'];
+                    img.alt = track['name'];
+                    songCard.appendChild(img);
+                    var songInfo = document.createElement('div');
+                    songInfo.className = 'song-info';
+                    var title = document.createElement('p');
+                    title.textContent = track['name'];
+                    var artist = document.createElement('p');
+                    artist.textContent = track['artists'];
+                    songInfo.appendChild(title);
+                    songInfo.appendChild(artist);
+                    songCard.appendChild(songInfo);
+                    songContainer.appendChild(songCard);
+                });
+            });
+        }
+
+        // Highlight available dates
+        document.addEventListener('DOMContentLoaded', function() {
+            var datePicker = document.getElementById('datePicker');
+            datePicker.addEventListener('focus', function() {
+                var dateList = availableDates.map(date => new Date(date).toISOString().split('T')[0]);
+                datePicker.setAttribute('min', dateList[0]);
+                datePicker.setAttribute('max', dateList[dateList.length - 1]);
+
+                datePicker.addEventListener('input', function() {
+                    if (!dateList.includes(this.value)) {
+                        this.setCustomValidity('Date not available');
+                    } else {
+                        this.setCustomValidity('');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
