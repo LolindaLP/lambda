@@ -4,7 +4,7 @@ https://tgs50.com/
 
 ## Project Overview
 
-<p style="font-size: 18px;">The Flask web application displays today's top 50 Spotify tracks and allows users to view top tracks for other days in the database.</p>
+<p style="font-size: 18px;">The Flask web application displays today's top 50 Spotify tracks and allows users to view top tracks for other days in the database. **Note:** This project is no longer working due to changes in Spotify’s API policy.</p>
 
 ## How It Works
 
